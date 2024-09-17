@@ -18,8 +18,8 @@ class Player:
             None
 
         Complexity:
-            Best Case Complexity:   O(n) - where n is the amount of elements
-            Worst Case Complexity:  O(n) - where n is the amount of elements
+            Best Case Complexity:  O(n) - where n is the amount of elements
+            Worst Case Complexity: O(n) - where n is the amount of elements
 
         """
         self.name = name
