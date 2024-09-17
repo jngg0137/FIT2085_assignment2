@@ -20,8 +20,8 @@ class Team:
             None
 
         Complexity:
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity:   
+            Worst Case Complexity:  
         """
         raise NotImplementedError
 
