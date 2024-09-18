@@ -36,15 +36,15 @@ class PlayerStats(Enum):
 
 
 class TeamStats(Enum):
-    GAMES_PLAYED = "Games Played"
-    POINTS = "Points"
+    GAMES_PLAYED = "Games Played"           #never called for __setitem__
+    POINTS = "Points"                       #never called for __setitem__
     WINS = "Wins"
     DRAWS = "Draws"
     LOSSES = "Losses"
     GOALS_FOR = "Goals For"
     GOALS_AGAINST = "Goals Against"
-    GOALS_DIFFERENCE = "Goals Difference"
-    LAST_FIVE_RESULTS = "Last Five Results"
+    GOALS_DIFFERENCE = "Goals Difference"   #never called for __setitem__
+    LAST_FIVE_RESULTS = "Last Five Results" #never called for __setitem__
 
 
 class PlayerPosition(Enum):

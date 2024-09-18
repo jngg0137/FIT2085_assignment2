@@ -1,9 +1,15 @@
 from __future__ import annotations
 from constants import PlayerPosition, PlayerStats
 from data_structures.hash_table import *
-
+from enum import auto, IntEnum
 
 class Player:
+    position_value = {
+        PlayerPosition.GOALKEEPER: 1,
+        PlayerPosition.DEFENDER: 2,
+        PlayerPosition.MIDFIELDER: 3,
+        PlayerPosition.STRIKER: 4
+    }
 
     def __init__(self, name: str, position: PlayerPosition, age: int) -> None:
         """
@@ -131,7 +137,7 @@ class Player:
             Analysis not required.
         """
         ret = "Player name: " + self.name
-        ret += "\nPlayer age: " + self.age
+        ret += "\nPlayer age: " + str(self.age)
         ret += "\nPlayer position: " + self.get_position().value
         ret += "\nPlayer statistics:\n"
         ret += self.get_statistics().__str__()
@@ -141,3 +147,29 @@ class Player:
         """Returns a string representation of the Player object.
         Useful for debugging or when the Player is held in another data structure."""
         return str(self)
+    
+    def get_position_value(self) -> int:
+        return self.position_value[self.position]
+
+    def __gt__(self,other) -> bool:
+        if self.get_position_value() > other.get_position_value():
+            return True
+        elif self.get_position_value() == other.get_position_value():
+            return self.age > other.age
+        return False
+        
+    def __lt__(self, other) -> bool:
+        if self.get_position_value() < other.get_position_value():
+            return True
+        elif self.get_position_value() == other.get_position_value():
+            return self.age < other.age
+        return False
+        
+    def __ge__(self, other) -> bool:
+        return self > other or self == other
+    
+    def __le__(self,other) -> bool:
+        return self < other or self == other
+    
+    def __eq__(self,other) -> bool:
+        return self.position == other.position and self.age == other.age
