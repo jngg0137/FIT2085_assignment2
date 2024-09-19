@@ -298,3 +298,42 @@ class Team:
         results.append(game_result)
         if len(results) > 5:
             results.delete_at_index(0)
+
+    """
+    sort teams in
+    1. descending order of points
+    2. descending goals for
+    3. alphabetically
+    """
+
+
+    def __gt__(self,other) -> bool:
+        if self.statistics[TeamStats.POINTS.value] > other.statistics[TeamStats.POINTS.value]:
+            return False
+        elif self.statistics[TeamStats.POINTS.value] == other.statistics[TeamStats.POINTS.value]:
+            if self.statistics[TeamStats.GOALS_FOR.value] > other.statistics[TeamStats.GOALS_FOR.value]:
+                return False
+            elif self.statistics[TeamStats.GOALS_FOR.value] == other.statistics[TeamStats.GOALS_FOR.value]:
+                if ord(self.name[0]) > ord(other.name[0]):
+                    return False
+        return True
+        
+    def __lt__(self, other) -> bool:
+        if self.statistics[TeamStats.POINTS.value] < other.statistics[TeamStats.POINTS.value]:
+            return False
+        elif self.statistics[TeamStats.POINTS.value] == other.statistics[TeamStats.POINTS.value]:
+            if self.statistics[TeamStats.GOALS_FOR.value] < other.statistics[TeamStats.GOALS_FOR.value]:
+                return False
+            elif self.statistics[TeamStats.GOALS_FOR.value] == other.statistics[TeamStats.GOALS_FOR.value]:
+                if ord(self.name[0]) < ord(other.name[0]):
+                    return False
+        return True
+        
+    def __ge__(self, other) -> bool:
+        return self > other or self == other
+    
+    def __le__(self,other) -> bool:
+        return self < other or self == other
+    
+    # def __eq__(self,other) -> bool:
+    #     return self.position == other.position and self.age == other.age

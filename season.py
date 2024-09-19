@@ -5,6 +5,9 @@ from dataclasses import dataclass
 from team import Team
 from typing import Generator, Union
 
+from constants import Constants
+from data_structures.array_sorted_list import *
+from data_structures.linked_queue import *
 
 @dataclass
 class Game:
@@ -94,7 +97,13 @@ class Season:
             Best Case Complexity:
             Worst Case Complexity:
         """
-        raise NotImplementedError
+        self.teams = teams
+        self.leaderboard = ArraySortedList(Constants.MAX_NUM_TEAMS)
+        for team in self.teams:
+            self.leaderboard.add(team)
+        self.schedule = LinkedQueue()
+        for i in self._generate_schedule():
+            self.schedule.append(i)
 
     def _generate_schedule(self) -> ArrayR[ArrayR[Game]]:
         """
