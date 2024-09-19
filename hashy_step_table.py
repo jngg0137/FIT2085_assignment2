@@ -69,10 +69,10 @@ class HashyStepTable(Generic[K, V]):
         Used to determine the step size for our hash table.
 
         Complexity:
-        Best Case Complexity:
-        Worst Case Complexity:
+        Best Case Complexity:   O(1)
+        Worst Case Complexity:  O(1)
         """
-        raise NotImplementedError
+        return sum(ord(char) for char in key) % self.table_size
 
     @property
     def table_size(self) -> int:
@@ -93,14 +93,27 @@ class HashyStepTable(Generic[K, V]):
         FullError: When a table is full and cannot be inserted.
 
         Complexity:
-        Best Case Complexity:
-        Worst Case Complexity:
+        Best Case Complexity:   O(k) where k is the size of the key
+        Worst Case Complexity:  O(k + n) where k is the size of the key and n is the size of the table
         """
         # Initial position
         position = self.hash(key)
+        step = self.hash2(key)
 
         # Custom logic to be implemented here
-        raise NotImplementedError
+        for _ in range(self.table_size):
+            if self.array[position] is None:
+                if is_insert:
+                    return position
+                print('a')
+                raise KeyError(key)
+            elif self.array[position][0] == key:
+                print('b')
+                return position
+            else:
+                position = (position + step) % self.table_size
+
+        raise KeyError(key)
     
     def keys(self) -> list[K]:
         """
@@ -175,7 +188,18 @@ class HashyStepTable(Generic[K, V]):
         Best Case Complexity:
         Worst Case Complexity:
         """
-        raise NotImplementedError
+        print(self)
+        position = self._hashy_probe(key, False)
+        self.array[position] = None
+        self.count -= 1
+        position = (position + 1) % len(self.array)
+        while self.array[position] is not None:
+            key2, value = self.array[position]
+            self.array[position] = None
+            newpos = self._hashy_probe(key2, True)
+            self.array[newpos] = (key2, value)
+            position = (position + 1) % len(self.array)
+        print('done deleting',key)
 
     def is_empty(self) -> bool:
         return self.count == 0
@@ -191,7 +215,17 @@ class HashyStepTable(Generic[K, V]):
         Best Case Complexity:
         Worst Case Complexity:
         """
-        raise NotImplementedError
+        previous_array = self.array
+        self.size_index += 1
+        # table can't be resized
+        if self.size_index == len(self.TABLE_SIZES):
+            return
+        self.array = ArrayR(self.TABLE_SIZES[self.size_index])
+        self.count = 0
+        for item in previous_array:
+            if item is not None:
+                key, value = item
+                self[key] = value
 
     def __str__(self) -> str:
         """
