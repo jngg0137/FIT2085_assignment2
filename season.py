@@ -7,7 +7,7 @@ from typing import Generator, Union
 
 from constants import Constants
 from data_structures.array_sorted_list import *
-from data_structures.linked_queue import *
+from data_structures.linked_list import *
 
 @dataclass
 class Game:
@@ -65,23 +65,31 @@ class WeekOfGames:
         Best Case Complexity: O(1)
         Worst Case Complexity: O(1)
         """
+        self.count = 0
         return self.week
 
     def __iter__(self):
         """
         Complexity:
-        Best Case Complexity:
-        Worst Case Complexity:
+        Best Case Complexity:   O(1)
+        Worst Case Complexity:  O(1)
         """
-        raise NotImplementedError
+        return self
 
     def __next__(self):
         """
         Complexity:
-        Best Case Complexity:
-        Worst Case Complexity:
+        Best Case Complexity:   O(1)
+        Worst Case Complexity:  O(1)
         """
-        raise NotImplementedError
+        if self.count is not None:
+            if self.count <= 0:
+                raise StopIteration
+        
+        ret = self.games[self.count]
+        self.count -= 1
+        return ret
+        
 
 
 class Season:
@@ -97,14 +105,16 @@ class Season:
             Best Case Complexity:
             Worst Case Complexity:
         """
+        self.current_week = 0
         self.teams = teams
         self.teams_length = len(teams)
         self.leaderboard = ArraySortedList(Constants.MAX_NUM_TEAMS)
         for team in self.teams:
             self.leaderboard.add(team)
-        self.schedule = LinkedQueue()
-        for i in self._generate_schedule():
-            self.schedule.append(i)
+        self.schedule = LinkedList()
+        generated_schedule = self._generate_schedule()
+        for i in range(len(generated_schedule)):
+            self.schedule.append(generated_schedule[i])
 
     def _generate_schedule(self) -> ArrayR[ArrayR[Game]]:
         """
@@ -178,16 +188,16 @@ class Season:
             Best Case Complexity:
             Worst Case Complexity:
         """
-        new_schedule = LinkedQueue()
-        original_schedule = []
+        orig_week_index = orig_week - 1
+        games_to_move = self.schedule[orig_week_index]
+        self.schedule.delete_at_index(orig_week_index)
 
-        for _ in range(len(self)):
-            original_schedule.append(self.get_next_game())
-        
-        for game in original_schedule:
-            new_schedule.append(game)
-        
-        self.schedule = new_schedule
+        if new_week == None:
+            # delay game to end of season
+            self.schedule.append(games_to_move)
+        else:
+            # move delayed game to given week
+            self.schedule.insert(new_week - 1, games_to_move)
 
     def get_next_game(self) -> Union[Generator[Game], None]:
         """
@@ -201,9 +211,13 @@ class Season:
             Best Case Complexity:
             Worst Case Complexity:
         """
-        if self.schedule.peek() is None:
+        current_week_game = self.schedule[self.current_week]
+        
+        if current_week_game is None or len(current_week_game) == 0:
             return None
-        return self.schedule.serve()
+        
+        return current_week_game
+    
 
     def get_leaderboard(self) -> ArrayR[ArrayR[Union[int, str]]]:
         """

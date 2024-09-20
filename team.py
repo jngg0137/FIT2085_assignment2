@@ -9,8 +9,8 @@ from data_structures.linked_list import *
 
 T = TypeVar("T")
 
-counter = 1
 class Team:
+    counter = 1
     def __init__(self, team_name: str, players: ArrayR[Player]) -> None:
         """
         Constructor for the Team class
@@ -26,7 +26,7 @@ class Team:
             Best Case Complexity:   O(n) where n is the number of team statistics
             Worst Case Complexity:  O(n) where n is the number of team statistics
         """
-        self.number = counter
+        self.number = Team.counter
         self.name = team_name
         self.statistics = LinearProbeTable[TeamStats,int]()
         self.players = ArraySortedList(Constants.TEAM_MAX_PLAYERS)
@@ -39,6 +39,8 @@ class Team:
                 self.statistics[statistic.value] = LinkedList()
             else:
                 self.statistics[statistic.value] = 0
+
+        Team.counter += 1
 
     def reset_stats(self) -> None:
         """
@@ -331,3 +333,12 @@ class Team:
     
     def __le__(self,other) -> bool:
         return self < other or self == other
+    
+    def __eq__(self,other) -> bool:
+        if not isinstance(other, Team):
+            return False
+        
+        # Compare team names, players, and statistics
+        return (self.name == other.name and
+                self.players == other.players and
+                self.statistics == other.statistics and self.get_number() == other.get_number())
