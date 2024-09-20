@@ -36,7 +36,6 @@ class Team:
 
         for statistic in TeamStats:
             if statistic == TeamStats.LAST_FIVE_RESULTS:
-                # self.statistics[statistic.value] = []
                 self.statistics[statistic.value] = LinkedList()
             else:
                 self.statistics[statistic.value] = 0
@@ -51,7 +50,6 @@ class Team:
         """
         for statistic in TeamStats:
             if statistic == TeamStats.LAST_FIVE_RESULTS:
-                # self.statistics[statistic.value] = []
                 self.statistics[statistic.value].clear()
             else:
                 self.statistics[statistic.value] = 0
@@ -67,8 +65,8 @@ class Team:
             None
 
         Complexity:
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity:   O(1)
+            Worst Case Complexity:  O(n * m) where n is the amount of elements in the list to shuffle to the right starting from chosen index, m is the length of the list
         """
         self.players.add(player)
 
@@ -83,8 +81,8 @@ class Team:
             None
 
         Complexity:
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity:   O(1)
+            Worst Case Complexity:  O(log(n) * m) where n is the number of elements in the list, m is the number of elements starting from chosen index
         """
         self.players.remove(player)
 
@@ -123,8 +121,8 @@ class Team:
             None: When no players match the criteria / team has no players
 
         Complexity:
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity:   O(1)
+            Worst Case Complexity:  O(n) where n is the amount of players in the team
         """
         if self.players.is_empty():
             return None
@@ -189,8 +187,8 @@ class Team:
             None if the team has not played any games.
 
         Complexity:
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity:   O(n * m) where n is the amount of characters in the statistic key provided, m is the value of the table_size attribute of the hash table
+            Worst Case Complexity:  O(n * m) where n is the amount of characters in the statistic key provided, m is the value of the table_size attribute of the hash table
         """
         if self.statistics[TeamStats.GAMES_PLAYED.value] == 0:
             return None
@@ -210,6 +208,7 @@ class Team:
             Best Case Complexity:
             Worst Case Complexity:
         """
+        # im a fit 2085 student sooo :)
         raise NotImplementedError
 
     def __setitem__(self, statistic: TeamStats, value: int) -> None:
@@ -221,16 +220,15 @@ class Team:
             value (int): The new value of the statistic
 
         Complexity:
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity:   O(n * m) where n is the amount of characters in the statistic key provided, m is the value of the table_size attribute of the hash table
+            Worst Case Complexity:  O(n * m * o) where n is the amount of characters in the statistic key provided, m is the value of the table_size attribute of the hash table,
+                                    o is the amount of elements in the table before rehashing
         """
         if statistic == TeamStats.WINS:
             self.statistics[TeamStats.POINTS.value] += 3
-            # self.statistics[TeamStats.LAST_FIVE_RESULTS.value].append(GameResult.WIN)
             self.add_last_five_results(GameResult.WIN)
         elif statistic == TeamStats.LOSSES:
             self.statistics[TeamStats.POINTS.value] = value
-            # self.statistics[TeamStats.LAST_FIVE_RESULTS.value].append(GameResult.LOSS)
             self.add_last_five_results(GameResult.LOSS)
         elif statistic == TeamStats.GOALS_FOR:
             self.statistics[TeamStats.POINTS.value] += value
@@ -238,7 +236,6 @@ class Team:
             self.statistics[TeamStats.POINTS.value] -= value
         elif statistic == TeamStats.DRAWS:
             self.statistics[TeamStats.POINTS.value] += value
-            # self.statistics[TeamStats.LAST_FIVE_RESULTS.value].append(GameResult.DRAW)
             self.add_last_five_results(GameResult.DRAW)
         self.statistics[statistic.value] = value
         self.statistics[TeamStats.GAMES_PLAYED.value] += 1
@@ -258,8 +255,8 @@ class Team:
             ValueError: If the statistic is invalid
 
         Complexity:
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity:   O(n * m) where n is the amount of characters in the statistic key provided, m is the value of the table_size attribute of the hash table
+            Worst Case Complexity:  O(n * m) where n is the amount of characters in the statistic key provided, m is the value of the table_size attribute of the hash table
         """
         return self.statistics[statistic.value]
 
@@ -268,8 +265,8 @@ class Team:
         Returns the number of players in the team.
 
         Complexity:
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity:   O(1)
+            Worst Case Complexity:  O(1)
         """
         return self.players.length
 
@@ -334,6 +331,3 @@ class Team:
     
     def __le__(self,other) -> bool:
         return self < other or self == other
-    
-    # def __eq__(self,other) -> bool:
-    #     return self.position == other.position and self.age == other.age

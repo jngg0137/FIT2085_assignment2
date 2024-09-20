@@ -98,6 +98,7 @@ class Season:
             Worst Case Complexity:
         """
         self.teams = teams
+        self.teams_length = len(teams)
         self.leaderboard = ArraySortedList(Constants.MAX_NUM_TEAMS)
         for team in self.teams:
             self.leaderboard.add(team)
@@ -177,7 +178,16 @@ class Season:
             Best Case Complexity:
             Worst Case Complexity:
         """
-        raise NotImplementedError
+        new_schedule = LinkedQueue()
+        original_schedule = []
+
+        for _ in range(len(self)):
+            original_schedule.append(self.get_next_game())
+        
+        for game in original_schedule:
+            new_schedule.append(game)
+        
+        self.schedule = new_schedule
 
     def get_next_game(self) -> Union[Generator[Game], None]:
         """
@@ -191,7 +201,9 @@ class Season:
             Best Case Complexity:
             Worst Case Complexity:
         """
-        raise NotImplementedError
+        if self.schedule.peek() is None:
+            return None
+        return self.schedule.serve()
 
     def get_leaderboard(self) -> ArrayR[ArrayR[Union[int, str]]]:
         """
@@ -213,8 +225,8 @@ class Season:
                     - Previous Five Results (ArrayR(str)) where result should be WIN LOSS OR DRAW
 
         Complexity:
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity:   
+            Worst Case Complexity:  
         """
         raise NotImplementedError
 
@@ -224,20 +236,20 @@ class Season:
             PlayerPosition (ArrayR(Team)): The teams participating in the season.
 
         Complexity:
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity: O(1)
+            Worst Case Complexity:O(1)
         """
-        raise NotImplementedError
+        return self.teams
 
     def __len__(self) -> int:
         """
         Returns the number of teams in the season.
 
         Complexity:
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity:   O(1)
+            Worst Case Complexity:  O(1)
         """
-        raise NotImplementedError
+        return self.teams_length
 
     def __str__(self) -> str:
         """

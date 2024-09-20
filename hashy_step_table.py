@@ -185,8 +185,8 @@ class HashyStepTable(Generic[K, V]):
         Deletes a (key, value) using lazy deletion
 
         Complexity:
-        Best Case Complexity:
-        Worst Case Complexity:
+        Best Case Complexity:   O(k) where k is the size of the key
+        Worst Case Complexity:  O(k + n*k) where k is the size of the key, n is the amount of slots in the table that are occupied
         """
         print(self)
         position = self._hashy_probe(key, False)
@@ -199,7 +199,6 @@ class HashyStepTable(Generic[K, V]):
             newpos = self._hashy_probe(key2, True)
             self.array[newpos] = (key2, value)
             position = (position + 1) % len(self.array)
-        print('done deleting',key)
 
     def is_empty(self) -> bool:
         return self.count == 0
@@ -212,8 +211,8 @@ class HashyStepTable(Generic[K, V]):
         Need to resize table and reinsert all values
 
         Complexity:
-        Best Case Complexity:
-        Worst Case Complexity:
+        Best Case Complexity:   O(n) where n is the new table size
+        Worst Case Complexity:  O(n + m) where n is the new table size, m is the amount of elements in the previous table
         """
         previous_array = self.array
         self.size_index += 1
