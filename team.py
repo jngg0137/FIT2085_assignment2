@@ -23,8 +23,10 @@ class Team:
             None
 
         Complexity:
-            Best Case Complexity:   O(n) where n is the number of team statistics
-            Worst Case Complexity:  O(n) where n is the number of team statistics
+            Best Case Complexity:   O(player + statistic*(comp + _linear_probe)) where player is the number of players in the 
+                                    players attribute, statistic is the team statistics to add to the hash table
+            Worst Case Complexity:  O(player + statistic*(comp + _linear_probe)) where player is the number of players in the 
+                                    players attribute, statistic is the team statistics to add to the hash table
         """
         self.number = Team.counter
         self.name = team_name
@@ -32,7 +34,7 @@ class Team:
         self.players = ArraySortedList(Constants.TEAM_MAX_PLAYERS)
 
         for player in players:
-            self.players.add(player)
+            self.add_player(player)
 
         for statistic in TeamStats:
             if statistic == TeamStats.LAST_FIVE_RESULTS:
@@ -47,8 +49,10 @@ class Team:
         Resets all the statistics of the team to the values they were during init.
 
         Complexity:
-            Best Case Complexity:   O(n) where n is the number of statistics in TeamStats
-            Worst Case Complexity:  O(n) where n is the number of statistics in TeamStats
+            Best Case Complexity:   O(statistic*(comp + _linear_probe)) where statistic is the team statistics to reset in the 
+                                    hash table
+            Worst Case Complexity:  O(statistic*(comp + _linear_probe)) where statistic is the team statistics to reset in the 
+                                    hash table
         """
         for statistic in TeamStats:
             if statistic == TeamStats.LAST_FIVE_RESULTS:
@@ -67,9 +71,11 @@ class Team:
             None
 
         Complexity:
-            Best Case Complexity:   O(1)
-            Worst Case Complexity:  O(n * m) where n is the amount of elements in the list to shuffle to the right starting from chosen index, m is the length of the list
+            Best Case Complexity:   O(comp) when player added is the middle element
+            Worst Case Complexity:  O(log(n) * comp) when all elements in the list are checked, n is the length 
+                                    of the list
         """
+        player.set_add_order(len(self))
         self.players.add(player)
 
     def remove_player(self, player: Player) -> None:
@@ -84,7 +90,8 @@ class Team:
 
         Complexity:
             Best Case Complexity:   O(1)
-            Worst Case Complexity:  O(log(n) * m) where n is the number of elements in the list, m is the number of elements starting from chosen index
+            Worst Case Complexity:  O(n) when the player removed is at the start of the list, where n is all of 
+                                    the elements in the list to shuffle to the left
         """
         self.players.remove(player)
 
@@ -124,7 +131,8 @@ class Team:
 
         Complexity:
             Best Case Complexity:   O(1)
-            Worst Case Complexity:  O(n) where n is the amount of players in the team
+            Worst Case Complexity:  O(n*comp + m) 
+                                    where n is the players in the team, m is the players matching the given position
         """
         if self.players.is_empty():
             return None
@@ -189,8 +197,10 @@ class Team:
             None if the team has not played any games.
 
         Complexity:
-            Best Case Complexity:   O(n * m) where n is the amount of characters in the statistic key provided, m is the value of the table_size attribute of the hash table
-            Worst Case Complexity:  O(n * m) where n is the amount of characters in the statistic key provided, m is the value of the table_size attribute of the hash table
+            Best Case Complexity:   O(hash(key) + N*comp) where key is the length of the key to be hashed, N is the 
+                                    table size
+            Worst Case Complexity:  O(hash(key) + N*comp) where key is the length of the key to be hashed, N is the 
+                                    table size
         """
         if self.statistics[TeamStats.GAMES_PLAYED.value] == 0:
             return None
@@ -210,7 +220,7 @@ class Team:
             Best Case Complexity:
             Worst Case Complexity:
         """
-        # im a fit 2085 student sooo :)
+        #fit 2085 student
         raise NotImplementedError
 
     def __setitem__(self, statistic: TeamStats, value: int) -> None:
@@ -222,9 +232,10 @@ class Team:
             value (int): The new value of the statistic
 
         Complexity:
-            Best Case Complexity:   O(n * m) where n is the amount of characters in the statistic key provided, m is the value of the table_size attribute of the hash table
-            Worst Case Complexity:  O(n * m * o) where n is the amount of characters in the statistic key provided, m is the value of the table_size attribute of the hash table,
-                                    o is the amount of elements in the table before rehashing
+            Best Case Complexity:   O(hash(key) + (N*comp)) where key is the length of the key to be hashed, N is the 
+                                    table size
+            Worst Case Complexity:  O(hash(key) + (hash(key) + N*comp) + (N*comp)) where key is the length of the key to be hashed, N is the 
+                                    table size
         """
         if statistic == TeamStats.WINS:
             self.statistics[TeamStats.POINTS.value] += 3
@@ -257,8 +268,10 @@ class Team:
             ValueError: If the statistic is invalid
 
         Complexity:
-            Best Case Complexity:   O(n * m) where n is the amount of characters in the statistic key provided, m is the value of the table_size attribute of the hash table
-            Worst Case Complexity:  O(n * m) where n is the amount of characters in the statistic key provided, m is the value of the table_size attribute of the hash table
+            Best Case Complexity:   O(hash(key) + N*comp) where key is the length of the key to be hashed, N is the 
+                                    table size
+            Worst Case Complexity:  O(hash(key) + N*comp) where key is the length of the key to be hashed, N is the 
+                                    table size
         """
         return self.statistics[statistic.value]
 
@@ -285,7 +298,12 @@ class Team:
         Complexity:
             Analysis not required.
         """
-        return ""
+        ret = "Name:",self.get_name()
+        ret += " | Points:",self.statistics[TeamStats.POINTS.value]
+        ret += " | Wins:",self.statistics[TeamStats.WINS.value]
+        ret += " | Goals for:",self.statistics[TeamStats.GOALS_FOR.value]
+        ret += " | Goals difference:",self.statistics[TeamStats.GOALS_DIFFERENCE.value]
+        return ret
 
     def __repr__(self) -> str:
         """Returns a string representation of the Team object.
@@ -293,39 +311,44 @@ class Team:
         return str(self)
 
     def add_last_five_results(self, game_result: GameResult) -> None:
+        """
+        Complexity:
+            Best Case Complexity:   O(hash(key) + N*comp) where key is the length of the key to be hashed, N is the 
+                                    table size
+            Worst Case Complexity:  O(hash(key) + N*comp) where key is the length of the key to be hashed, N is the 
+                                    table size
+        """
         results = self.statistics[TeamStats.LAST_FIVE_RESULTS.value]
         results.append(game_result)
         if len(results) > 5:
             results.delete_at_index(0)
 
-    """
-    sort teams in
-    1. descending order of points
-    2. descending goals for
-    3. alphabetically
-    """
-
-
     def __gt__(self,other) -> bool:
         if self.statistics[TeamStats.POINTS.value] > other.statistics[TeamStats.POINTS.value]:
             return False
         elif self.statistics[TeamStats.POINTS.value] == other.statistics[TeamStats.POINTS.value]:
-            if self.statistics[TeamStats.GOALS_FOR.value] > other.statistics[TeamStats.GOALS_FOR.value]:
+            if self.statistics[TeamStats.GOALS_DIFFERENCE.value] > other.statistics[TeamStats.GOALS_DIFFERENCE.value]:
                 return False
-            elif self.statistics[TeamStats.GOALS_FOR.value] == other.statistics[TeamStats.GOALS_FOR.value]:
-                if ord(self.name[0]) > ord(other.name[0]):
+            elif self.statistics[TeamStats.GOALS_DIFFERENCE.value] > other.statistics[TeamStats.GOALS_DIFFERENCE.value]:
+                if self.statistics[TeamStats.GOALS_FOR.value] > other.statistics[TeamStats.GOALS_FOR.value]:
                     return False
+                elif self.statistics[TeamStats.GOALS_FOR.value] == other.statistics[TeamStats.GOALS_FOR.value]:
+                    if ord(self.name[0]) > ord(other.name[0]):
+                        return False
         return True
         
     def __lt__(self, other) -> bool:
         if self.statistics[TeamStats.POINTS.value] < other.statistics[TeamStats.POINTS.value]:
             return False
         elif self.statistics[TeamStats.POINTS.value] == other.statistics[TeamStats.POINTS.value]:
-            if self.statistics[TeamStats.GOALS_FOR.value] < other.statistics[TeamStats.GOALS_FOR.value]:
+            if self.statistics[TeamStats.GOALS_DIFFERENCE.value] > other.statistics[TeamStats.GOALS_DIFFERENCE.value]:
                 return False
-            elif self.statistics[TeamStats.GOALS_FOR.value] == other.statistics[TeamStats.GOALS_FOR.value]:
-                if ord(self.name[0]) < ord(other.name[0]):
+            elif self.statistics[TeamStats.GOALS_DIFFERENCE.value] > other.statistics[TeamStats.GOALS_DIFFERENCE.value]:
+                if self.statistics[TeamStats.GOALS_FOR.value] < other.statistics[TeamStats.GOALS_FOR.value]:
                     return False
+                elif self.statistics[TeamStats.GOALS_FOR.value] == other.statistics[TeamStats.GOALS_FOR.value]:
+                    if ord(self.name[0]) < ord(other.name[0]):
+                        return False
         return True
         
     def __ge__(self, other) -> bool:
@@ -338,7 +361,5 @@ class Team:
         if not isinstance(other, Team):
             return False
         
-        # Compare team names, players, and statistics
-        return (self.name == other.name and
-                self.players == other.players and
-                self.statistics == other.statistics and self.get_number() == other.get_number())
+        return (self.name == other.name and self.players == other.players and self.statistics == other.statistics 
+                and self.get_number() == other.get_number())

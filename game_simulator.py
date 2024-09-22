@@ -75,6 +75,12 @@ class GameSimulator:
 
         result_table[ResultStats.TACKLES.value] = ArrayR.from_list(tackles)
         result_table[ResultStats.INTERCEPTIONS.value] = ArrayR.from_list(interceptions)
+        # print(f"Home Team: {[player.get_name() for player in home_team.get_players()]}")
+        # print(f"Away Team: {[player.get_name() for player in away_team.get_players()]}")
+        # print(f"Goal Scorers: {goal_scorers}")
+        # print(f"Goal Assists: {goal_assists}")
+        # print(f"Tackles: {tackles}")
+        # print(f"Interceptions: {interceptions}")
 
         return result_table
 

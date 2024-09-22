@@ -226,5 +226,5 @@ class LinearProbeTable(Generic[K, V]):
         for item in self.array:
             if item is not None:
                 (key, value) = item
-                result += "(" + str(key) + "," + str(value) + ")\n"
+                result += "(" + str(key) + "," + str(value) + ") "
         return result

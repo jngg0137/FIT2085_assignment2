@@ -5,9 +5,10 @@ from dataclasses import dataclass
 from team import Team
 from typing import Generator, Union
 
-from constants import Constants
+from constants import Constants, TeamStats, PlayerStats
 from data_structures.array_sorted_list import *
 from data_structures.linked_list import *
+from game_simulator import *
 
 @dataclass
 class Game:
@@ -102,8 +103,10 @@ class Season:
             teams (ArrayR[Team]): The teams played in this season.
 
         Complexity:
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity:   O(team + i) where team is the teams in the leaderboard, i is the amount of possible 
+                                    games between the teams
+            Worst Case Complexity:  O(team + i) where team is the teams in the leaderboard, i is the amount of possible 
+                                    games between the teams
         """
         self.current_week = 0
         self.teams = teams
@@ -120,7 +123,7 @@ class Season:
         """
         Generates a schedule by generating all possible games between the teams.
 
-        Return:
+        Return:`
             ArrayR[ArrayR[Game]]: The schedule of the season.
                 The outer array is the weeks in the season.
                 The inner array is the games for that given week.
@@ -171,10 +174,74 @@ class Season:
             Assume simulate_game is O(1)
             Remember to define your variables and their complexity.
 
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity:   O(n + games*(home*_linear_probe + away*_linear_probe + result_stats*(comp + _linear_probe))) 
+                                    when there are no results at the end of the game, where n is the weeks of games, 
+                                    games is the number of games in the week, home is the players in the home team, 
+                                    away is the players in the away team, result_stats is the statistics in the ResultStats 
+                                    enum
+            Worst Case Complexity:  O(n + games*(home*_linear_probe + away*_linear_probe + 
+                                    result_stats*(comp + _linear_probe + players*(away*comp + comp + _linear_probe)))) 
+                                    when player is found in away team and their stats need to be changed,
+                                    where n is the weeks of games, games is the number of games in the week, home is the 
+                                    players in the home team, away is the players in the away team,
+                                    result_stats is the statistics in the ResultStats enum, players is the players that appear
+                                    in the ResultStat key's value
         """
-        raise NotImplementedError
+        for n in range(len(self.schedule)):
+            current_game = self.get_next_game()
+            for game in current_game:
+                home_team = game.home_team
+                away_team = game.away_team
+
+                # increment games played for teams & players involved
+                home_team.statistics[TeamStats.GAMES_PLAYED.value] += 1
+                away_team.statistics[TeamStats.GAMES_PLAYED.value] += 1
+                for player in home_team.get_players():
+                    player.statistics[PlayerStats.GAMES_PLAYED.value] += 1
+                for player in away_team.get_players():
+                    player.statistics[PlayerStats.GAMES_PLAYED.value] += 1
+
+                result = GameSimulator.simulate(home_team,away_team)
+                
+                for statistic in ResultStats:
+                    # add goals for to home team & against for away team
+                    if statistic == ResultStats.HOME_GOALS:
+                        home_team.statistics[TeamStats.GOALS_FOR.value] += result[statistic.value]
+                        away_team.statistics[TeamStats.GOALS_AGAINST.value] += result[statistic.value]
+
+                    # add goals for away team & against for home team
+                    elif statistic == ResultStats.AWAY_GOALS:
+                        away_team.statistics[TeamStats.GOALS_FOR.value] += result[statistic.value]
+                        home_team.statistics[TeamStats.GOALS_AGAINST.value] += result[statistic.value]
+
+                    elif result[statistic.value]:
+                        for player_name in result[statistic.value]:
+                            continue_searching = True
+
+                            #find player in home team or away team
+                            for player in home_team.players:
+                                if player.get_name() == player_name:
+                                    player_object = player
+                                    continue_searching = False
+
+                            if continue_searching:
+                                for player in away_team.players:
+                                    if player.get_name() == player_name:
+                                        player_object = player
+
+                            # increment player goals
+                            if statistic == ResultStats.GOAL_SCORERS:
+                                player_object.statistics[PlayerStats.GOALS.value] += 1
+                            # increment player assists
+                            elif statistic == ResultStats.GOAL_ASSISTS:
+                                player_object.statistics[PlayerStats.ASSISTS.value] += 1
+                            # increment player tackles
+                            elif statistic == ResultStats.TACKLES:
+                                player_object.statistics[PlayerStats.TACKLES.value] += 1
+                            #increment player interception
+                            elif statistic == ResultStats.INTERCEPTIONS:
+                                player_object.statistics[PlayerStats.INTERCEPTIONS.value] += 1
+            self.current_week += 1
 
     def delay_week_of_games(self, orig_week: int, new_week: Union[int, None] = None) -> None:
         """
@@ -185,8 +252,9 @@ class Season:
             new_week (Union[int, None]): The new week to move the games to. If this is None, it moves the games to the end of the season.
 
         Complexity:
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity:   O(1)
+            Worst Case Complexity:  O(n + insert) where n is the amount of elements to be shuffled to the left in the list
+                                    
         """
         orig_week_index = orig_week - 1
         games_to_move = self.schedule[orig_week_index]
@@ -208,8 +276,8 @@ class Season:
             or None if there are no more games left.
 
         Complexity:
-            Best Case Complexity:
-            Worst Case Complexity:
+            Best Case Complexity:   O(n + comp) where n is the weeks between first week and the requested week of games
+            Worst Case Complexity:  O(n + comp) where n is the weeks between first week and the requested week of games
         """
         current_week_game = self.schedule[self.current_week]
         
@@ -217,7 +285,6 @@ class Season:
             return None
         
         return current_week_game
-    
 
     def get_leaderboard(self) -> ArrayR[ArrayR[Union[int, str]]]:
         """
@@ -239,10 +306,32 @@ class Season:
                     - Previous Five Results (ArrayR(str)) where result should be WIN LOSS OR DRAW
 
         Complexity:
-            Best Case Complexity:   
-            Worst Case Complexity:  
+            Best Case Complexity:   O(teams + _linear_probe)
+                                    where teams is the teams in the leaderboard, stats is the 
+                                    team statistics to get the value from
+            Worst Case Complexity:  O(teams + _linear_probe)
+                                    where teams is the teams in the leaderboard, stats is the 
+                                    team statistics to get the value from
         """
-        raise NotImplementedError
+        teams_data = []
+
+        for team in self.leaderboard: 
+            statistics = team.get_statistics()
+            print(team.__str__())
+            teams_data.append([
+                team.get_name(),
+                statistics[TeamStats.GAMES_PLAYED.value],
+                statistics[TeamStats.POINTS.value],
+                statistics[TeamStats.WINS.value],
+                statistics[TeamStats.DRAWS.value],
+                statistics[TeamStats.LOSSES.value],
+                statistics[TeamStats.GOALS_FOR.value],
+                statistics[TeamStats.GOALS_AGAINST.value],
+                statistics[TeamStats.GOALS_DIFFERENCE.value],
+                team.get_last_five_results()
+            ])
+
+        return teams_data
 
     def get_teams(self) -> ArrayR[Team]:
         """

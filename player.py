@@ -25,27 +25,29 @@ class Player:
 
         Complexity:
             Best Case Complexity:  O(1)
-            Worst Case Complexity: O(n) - where n is the number of PlayerStats enum values to insert into the hash table
+            Worst Case Complexity: O(statistic) - where statistic is the PlayerStats enum values to 
+                                    insert into the hash table
 
         """
         self.name = name
         self.position = position
         self.age = age
         self.statistics = LinearProbeTable[PlayerStats,int]()
+        self.add_order = 0
 
         for statistic in PlayerStats:
             self.statistics[statistic.value] = 0
 
     def reset_stats(self) -> None:
-        """
+        """`
         Reset the stats of the player
 
         Returns:
             None
 
         Complexity:
-            Best Case Complexity:   O(n) - where n is the number of player stats to reset
-            Worst Case Complexity:  O(n) - where n is the number of player stats to reset
+            Best Case Complexity:   O(statistic*_linear_probe) - where statistic is the player stats to reset
+            Worst Case Complexity:  O(statistic*_linear_probe) - where statistic is the player stats to reset
 
         """
         for statistic in PlayerStats:
@@ -103,7 +105,7 @@ class Player:
 
         Complexity:
             Best Case Complexity:   O(1)
-            Worst Case Complexity:  O(m+n) where n is the amount of elements that linear probing goes through and m is length of string of given player statistic
+            Worst Case Complexity:  O(_linear_probe)
         """
         self.statistics[statistic.value] = value
 
@@ -119,7 +121,7 @@ class Player:
 
         Complexity:
             Best Case Complexity:   O(1)
-            Worst Case Complexity:  O(m+n) where n is the amount of elements that linear probing goes through and m is length of string of given player statistic
+            Worst Case Complexity:  O(_linear_probe)
         """
         return self.statistics[statistic.value]
 
@@ -137,9 +139,9 @@ class Player:
             Analysis not required.
         """
         ret = "Player name: " + self.name
-        ret += "\nPlayer age: " + str(self.age)
-        ret += "\nPlayer position: " + self.get_position().value
-        ret += "\nPlayer statistics:\n"
+        ret += " Player age: " + str(self.age)
+        ret += " Player position: " + self.get_position().value
+        ret += " Player statistics: "
         ret += self.get_statistics().__str__()
         return ret
 
@@ -148,21 +150,34 @@ class Player:
         Useful for debugging or when the Player is held in another data structure."""
         return str(self)
     
+    def set_add_order(self, add_order: int) -> None:
+        """
+            Best Case Complexity: O(1)
+            Worst Case complexity O(1)
+        """
+        self.add_order = add_order
+    
     def get_position_value(self) -> int:
+        """
+            Best Case Complexity: O(1)
+            Worst Case complexity O(1)
+        """
         return self.position_value[self.position]
 
     def __gt__(self,other) -> bool:
         if self.get_position_value() > other.get_position_value():
             return True
         elif self.get_position_value() == other.get_position_value():
-            return self.age > other.age
+            # return self.age > other.age
+            return self.add_order > other.add_order
         return False
         
     def __lt__(self, other) -> bool:
         if self.get_position_value() < other.get_position_value():
             return True
         elif self.get_position_value() == other.get_position_value():
-            return self.age < other.age
+            # return self.age < other.age
+            return self.add_order < other.add_order
         return False
         
     def __ge__(self, other) -> bool:

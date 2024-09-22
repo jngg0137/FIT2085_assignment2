@@ -93,8 +93,9 @@ class HashyStepTable(Generic[K, V]):
         FullError: When a table is full and cannot be inserted.
 
         Complexity:
-        Best Case Complexity:   O(k) where k is the size of the key
-        Worst Case Complexity:  O(k + n) where k is the size of the key and n is the size of the table
+        Best Case Complexity:   O(hash(key) + hash2(key)) when position in table is empty
+        Worst Case Complexity:  O(hash(key) + hash2(key) + n*comp) where n is the table size when element is at 
+                                the end of the table 
         """
         # Initial position
         position = self.hash(key)
@@ -105,10 +106,8 @@ class HashyStepTable(Generic[K, V]):
             if self.array[position] is None:
                 if is_insert:
                     return position
-                print('a')
                 raise KeyError(key)
             elif self.array[position][0] == key:
-                print('b')
                 return position
             else:
                 position = (position + step) % self.table_size
@@ -185,12 +184,11 @@ class HashyStepTable(Generic[K, V]):
         Deletes a (key, value) using lazy deletion
 
         Complexity:
-        Best Case Complexity:   O(k) where k is the size of the key
-        Worst Case Complexity:  O(k + n*k) where k is the size of the key, n is the amount of slots in the table that are occupied
+        Best Case Complexity:   O(hashy_probe(key) + n*hashy_probe(key)) where n is the table size
+        Worst Case Complexity:  O(hashy_probe(key) + n*hashy_probe(key)) where n is the table size
         """
-        print(self)
         position = self._hashy_probe(key, False)
-        self.array[position] = None
+        self.array[position] = "None"
         self.count -= 1
         position = (position + 1) % len(self.array)
         while self.array[position] is not None:
@@ -211,8 +209,9 @@ class HashyStepTable(Generic[K, V]):
         Need to resize table and reinsert all values
 
         Complexity:
-        Best Case Complexity:   O(n) where n is the new table size
-        Worst Case Complexity:  O(n + m) where n is the new table size, m is the amount of elements in the previous table
+        Best Case Complexity:   O(1)
+        Worst Case Complexity:  O(n + hash(key)*m) where n is the new table size, m is the elements in the previous 
+                                table
         """
         previous_array = self.array
         self.size_index += 1
